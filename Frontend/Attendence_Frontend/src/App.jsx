@@ -4,9 +4,14 @@ function App() {
   const videoRef = useRef(null);
   const photoRef = useRef(null);
   const [hasPhoto, setHasPhoto] = useState(false);
-  const [imageData, setImageData] = useState(null); // New state for image data
+  const [imageData, setImageData] = useState(null); 
+  const [username, setUsername] = useState("");
 
   const getVideo = () => {
+    if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
+      console.error("getUserMedia is not supported in this browser.");
+      return; 
+    }
     navigator.mediaDevices.getUserMedia({
       video: { width: 1920, height: 1080 }
     })
@@ -49,12 +54,33 @@ function App() {
     if (!imageData) return;
 
     // Send the image data to the backend
-    fetch('http://your-backend-url/api/attendance', {
+    fetch(' http://127.0.0.1:8000/api/mark_attendence', {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({ image: imageData }), // Send the image as JSON
+    })
+    .then(response => response.json())
+    .then(data => {
+      console.log('Success:', data);
+      // Handle success (e.g., show a message or redirect)
+    })
+    .catch((error) => {
+      console.error('Error:', error);
+      console.log(imageData);
+    });
+  };
+  const handleRegis = () => {
+    if (!imageData || !username) return; // Ensure both image and username are present
+
+    // Send the image data and username to the backend
+    fetch('http://127.0.0.1:8000/api/register', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ image: imageData, username: username }), // Send image and username as JSON
     })
     .then(response => response.json())
     .then(data => {
@@ -84,6 +110,13 @@ function App() {
             <>
               <button onClick={retake}>Retake</button>
               <button onClick={acceptImage}>Accept</button>
+              <input 
+                type="text" 
+                value={username} 
+                onChange={(e) => setUsername(e.target.value)} // Update username state
+                placeholder="Enter your name"
+              />
+              <button onClick={handleRegis}>Register</button>
             </>
           )}
         </div>
