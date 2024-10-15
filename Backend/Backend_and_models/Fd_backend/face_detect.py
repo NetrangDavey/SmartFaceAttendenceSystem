@@ -4,7 +4,7 @@ import cv2
 import numpy as np
 
 
-def encode_image(file=r'C:\Users\Vishal Davey\Desktop\Usable Projs\Classroom Face Detection Attendence\Backend\Backend_and_models\media\registered'):
+def encode_image(file=os.path.join("media\\registered")):
     encoded={}
     
     for dp,dn,fnames in os.walk(file):
@@ -12,15 +12,10 @@ def encode_image(file=r'C:\Users\Vishal Davey\Desktop\Usable Projs\Classroom Fac
             if(f.endswith('.png') or f.endswith('.jpg')):
                 face=fr.load_image_file(f'{dp}/{f}')
                 encoding=fr.face_encodings(face)[0]
+                print(len(encoding))
                 encoded[f.split('.')[0]]=encoding
     return encoded
-def unknown_encoding(file):
-    encoded={}
-    for img in os.listdir(file):
-        face=fr.load_image_file(f'{file}/{img}')
-        encoding=fr.face_encodings(face)[0]
-        encoded[img.split('.')[0]]=encoding
-    return encoded
+
 def detect(file):
     faces=encode_image()
     faces_encoded=list(faces.values())

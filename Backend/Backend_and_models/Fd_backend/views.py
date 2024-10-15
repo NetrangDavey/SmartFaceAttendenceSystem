@@ -5,6 +5,7 @@ from .face_detect import detect
 import base64
 import os
 import datetime
+from .models import Students
 
 @csrf_exempt
 def mark_attendance(request):
@@ -30,8 +31,16 @@ def mark_attendance(request):
                 with open(file_path, 'wb') as f:
                     f.write(imgdata)
                 result=detect(f'media/unknown/{sub_fol}')
+                names=[]
+                for r in result:
+                    data=Students.objects.get(reg_no=r)
+                    if data:
+                        names.append(data.name)
+                
                 return JsonResponse({'message': 'Attendence Marked successfully!',
-                                     'Students':result,
+                                     'Students':names,
+                                     'Registration Numbers':result,
+                                     'Date':sub_fol,
                                      'total stds':len(result)})
             else:
                 return JsonResponse({'error': 'No image data provided!'}, status=400)
@@ -49,6 +58,7 @@ def register(request):
             data = json.loads(request.body)
             image_data = data.get('image')
             name=data.get('username')
+            regis=data.get('reg')
             if image_data:
                 # Remove the metadata (e.g., "data:image/png;base64,")
                 format, imgstr = image_data.split(';base64,')
@@ -56,14 +66,14 @@ def register(request):
 
                 # Decode the image
                 imgdata = base64.b64decode(imgstr)
-                file_name = f"{name}.{ext}"
+                file_name = f"{regis}.{ext}"
                 
                 file_path = os.path.join('media/registered/', file_name)
 
                 # Save the image
                 with open(file_path, 'wb') as f:
                     f.write(imgdata)
-                
+                Students(name=name,reg_no=regis).save()
                 return JsonResponse({'message': 'Image uploaded successfully!',
                                      'Students_name':name})
             else:

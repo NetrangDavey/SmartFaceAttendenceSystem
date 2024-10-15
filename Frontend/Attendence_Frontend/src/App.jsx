@@ -6,6 +6,7 @@ function App() {
   const [hasPhoto, setHasPhoto] = useState(false);
   const [imageData, setImageData] = useState(null); 
   const [username, setUsername] = useState("");
+  const [regNo, setRegNo] = useState("");
 
   const getVideo = () => {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
@@ -63,7 +64,7 @@ function App() {
     })
     .then(response => response.json())
     .then(data => {
-      console.log('Success:', data);
+      alert(`Success:${data.message}\nRegistration Number:${data['Registration Numbers']}\nStudents:${data.Students}\nTotal Stds:${data['total stds']}`)
       // Handle success (e.g., show a message or redirect)
     })
     .catch((error) => {
@@ -80,11 +81,12 @@ function App() {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ image: imageData, username: username }), // Send image and username as JSON
+      body: JSON.stringify({ image: imageData, username: username ,reg:regNo}), // Send image and username as JSON
     })
     .then(response => response.json())
     .then(data => {
-      console.log('Success:', data);
+      alert('Success:'+data.message+"\nname: "+data.Students_name);
+      console.log(data);
       // Handle success (e.g., show a message or redirect)
     })
     .catch((error) => {
@@ -115,6 +117,12 @@ function App() {
                 value={username} 
                 onChange={(e) => setUsername(e.target.value)} // Update username state
                 placeholder="Enter your name"
+              />
+              <input 
+                type="text" 
+                value={regNo} 
+                onChange={(e) => setRegNo(e.target.value)} // Update username state
+                placeholder="Enter your registration number"
               />
               <button onClick={handleRegis}>Register</button>
             </>
