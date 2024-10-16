@@ -1,22 +1,32 @@
 *{
   margin: 0;
   padding: 0;
-  box-sizing: border-box;
-  font-family: sans-serif;
 }
-
 .App{
-  min-height: 100vh;
-  position: relative;
-  background-color: #313131;
+  height: 100vh;
+  width: 100vw;
 }
 
-.camara{
-  position: relative;
+.camera_container{
+  width: 50%;
+  /* position: absolute; */
+}
+.photo_container{
+  display: none;
+}
+.photo_container.hasPhoto{
+  display:flex;
+
 }
 
-video{
-  width: 100%;
-  max-width: 100%;
-  height: 50vh;
+@media only screen and (max-width: 900px) {
+  .image-res{
+    width: 75%;
+    
+    
+  }
+  .photo_container.hasPhoto{
+    align-items: center;
+    justify-content: center;
+  }
 }

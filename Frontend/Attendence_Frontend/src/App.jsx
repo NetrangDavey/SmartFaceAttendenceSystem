@@ -4,30 +4,36 @@ function App() {
   const videoRef = useRef(null);
   const photoRef = useRef(null);
   const [hasPhoto, setHasPhoto] = useState(false);
-  const [imageData, setImageData] = useState(null); 
+  const [imageData, setImageData] = useState(null);
   const [username, setUsername] = useState("");
   const [regNo, setRegNo] = useState("");
 
+  //Camera Operations
   const getVideo = () => {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
-      console.error("getUserMedia is not supported in this browser.");
-      return; 
+      alert("getUserMedia is not supported in this browser.");
+      return;
     }
     navigator.mediaDevices.getUserMedia({
-      video: { width: 1920, height: 1080 }
+      video: {
+        // facingMode: { ideal: "environment" }, // Try to use back camera
+        width: 1920,
+        height: 1080
+      }
     })
-    .then(stream => {
-      let video = videoRef.current;
-      video.srcObject = stream;
-      video.play();
-    })
-    .catch(err => {
-      console.error(err);
-    });
+      .then(stream => {
+        let video = videoRef.current;
+        video.srcObject = stream;
+        video.play();
+      })
+      .catch(err => {
+        console.error(err);
+        alert("Back camera not available. Trying front camera.");
+      });
   };
 
   const capturePic = () => {
-    const w = 414;
+    const w = 514;
     const h = w / (16 / 9);
 
     let vid = videoRef.current;
@@ -51,6 +57,7 @@ function App() {
     setImageData(null); // Clear the image data
   };
 
+  // Marking Attendence
   const acceptImage = () => {
     if (!imageData) return;
 
@@ -62,16 +69,19 @@ function App() {
       },
       body: JSON.stringify({ image: imageData }), // Send the image as JSON
     })
-    .then(response => response.json())
-    .then(data => {
-      alert(`Success:${data.message}\nRegistration Number:${data['Registration Numbers']}\nStudents:${data.Students}\nTotal Stds:${data['total stds']}`)
-      // Handle success (e.g., show a message or redirect)
-    })
-    .catch((error) => {
-      console.error('Error:', error);
-      console.log(imageData);
-    });
+      .then(response => response.json())
+      .then(data => {
+        console.log(data);
+        alert(`Success:${data.message}\nRegistration Number:${data['Registration Numbers']}\nStudents:${data.Students}\nTotal Stds:${data['total stds']}`)
+        // Handle success (e.g., show a message or redirect)
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+        console.log(imageData);
+      });
   };
+
+  //Student Registration
   const handleRegis = () => {
     if (!imageData || !username) return; // Ensure both image and username are present
 
@@ -81,18 +91,17 @@ function App() {
       headers: {
         'Content-Type': 'application/json',
       },
-      body: JSON.stringify({ image: imageData, username: username ,reg:regNo}), // Send image and username as JSON
+      body: JSON.stringify({ image: imageData, username: username, reg: regNo }),
     })
-    .then(response => response.json())
-    .then(data => {
-      alert('Success:'+data.message+"\nname: "+data.Students_name);
-      console.log(data);
-      // Handle success (e.g., show a message or redirect)
-    })
-    .catch((error) => {
-      console.error('Error:', error);
-      console.log(imageData);
-    });
+      .then(response => response.json())
+      .then(data => {
+        alert('Success:' + data.message + "\nname: " + data.Students_name);
+        console.log(data);
+      })
+      .catch((error) => {
+        console.error('Error:', error);
+        console.log(imageData);
+      });
   };
 
   useEffect(() => {
@@ -101,30 +110,37 @@ function App() {
 
   return (
     <>
-      <div className='App'>
-        <div className='camera'>
-          <video ref={videoRef}></video>
-          <button onClick={capturePic}>Capture</button>
+      <div className='App bg-secondary d-flex align-items-center justify-content-evenly flex-wrap'  >
+        <div className='camera_container d-flex flex-column align-items-center p-1  '>
+          <video ref={videoRef} className='w-100'></video>
+          <button className=" mt-3 btn btn-danger" onClick={capturePic}>Capture</button>
         </div>
-        <div className={'result' + (hasPhoto ? ' hasPhoto' : '')}>
-          <canvas ref={photoRef}></canvas>
+        <div className={"p-3 flex-column photo_container" + (hasPhoto ? ' hasPhoto' : '')} >
+          <canvas className="image-res" ref={photoRef}></canvas>
           {hasPhoto && (
             <>
-              <button onClick={retake}>Retake</button>
-              <button onClick={acceptImage}>Accept</button>
-              <input 
-                type="text" 
-                value={username} 
-                onChange={(e) => setUsername(e.target.value)} // Update username state
-                placeholder="Enter your name"
-              />
-              <input 
-                type="text" 
-                value={regNo} 
-                onChange={(e) => setRegNo(e.target.value)} // Update username state
-                placeholder="Enter your registration number"
-              />
-              <button onClick={handleRegis}>Register</button>
+              <div className="my-2 d-flex align-items-center justify-content-evenly">
+                <button className='btn btn-danger' onClick={retake}>Retake</button>
+                <button className='btn btn-success' onClick={acceptImage}>Accept</button>
+              </div>
+
+              <div className="px-3 w-100 d-flex flex-column align-items-center justify-content-evenly">
+                <input
+                  className="form-control my-1"
+                  type="text"
+                  value={username}
+                  onChange={(e) => setUsername(e.target.value)} // Update username state
+                  placeholder="Enter your name"
+                />
+                <input
+                  className="form-control my-1"
+                  type="text"
+                  value={regNo}
+                  onChange={(e) => setRegNo(e.target.value)} // Update username state
+                  placeholder="Enter your registration number"
+                />
+                <button className="btn btn-success my-1" onClick={handleRegis}>Register Student</button>
+              </div>
             </>
           )}
         </div>
